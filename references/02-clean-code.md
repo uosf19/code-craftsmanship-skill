@@ -28,7 +28,7 @@ The ratio of time spent reading code versus writing new code is well over 10 to 
 * **Pronounceable & Searchable Names:** The length of a variable name should be proportional to the scope of its usage. Single-letter variables are only acceptable as short loop indices (`i`, `j`) spanning 3–5 lines.
 
 ### B. Functions: The Rules of Smallness & Cohesion (هندسة الدوال)
-1. **Rule 1: Small!** Functions should rarely exceed 20 lines of code.
+1. **Rule 1: Small!** Martin argues functions should be very small (he cites roughly 20 lines as hardly ever exceeded). Ousterhout (Book 05) disagrees when splitting yields shallow modules, so treat size as a smell signal, not a target.
 2. **Rule 2: Do Exactly One Thing (Single Responsibility):** A function should do one thing, do it well, and do it only.
    - *Test:* A function does one thing if you cannot extract another meaningful function from it without restating its primary purpose.
 3. **One Level of Abstraction per Function (SLAP):**
@@ -37,8 +37,8 @@ The ratio of time spent reading code versus writing new code is well over 10 to 
 5. **Function Arguments:**
    - Ideal: **0 (Niladic)**.
    - Acceptable: **1 (Monadic)** or **2 (Dyadic)**.
-   - Requires justification: **3 (Triadic)**.
-   - Strictly forbidden: **4+ (Polyadic)** $\rightarrow$ Wrap into a typed Parameter Object or Value Object.
+   - Avoid where possible: **3 (Triadic)** (needs justification).
+   - Avoid: **4+ (Polyadic)**; Martin says it needs very special justification $\rightarrow$ usually wrap into a typed Parameter Object or Value Object.
    - **No Flag Arguments:** Passing a boolean flag (`render(isSuite: boolean)`) proves the function does two things. Split it into `renderForSuite()` and `renderSingle()`.
 
 ### C. Command-Query Separation (CQS)
@@ -63,5 +63,5 @@ The ratio of time spent reading code versus writing new code is well over 10 to 
 
 ## 3. Actionable Rules for our Craftsmanship Skill
 1. **The Single Abstraction Rule:** Never mix high-level business orchestration with low-level technical plumbing in the same function.
-2. **The Zero-Null Invariant:** Production APIs and domain routines must never return `null` for collections or aggregate queries; return empty sets or dedicated domain result types.
-3. **The Parameter Capping Rule:** Functions with more than 3 parameters must be refactored to accept a strongly typed parameter interface/object.
+2. **The Null Default:** Production APIs and domain routines should not return `null` for collections or "not found" cases; return empty sets, Optional/Result types, or Null Objects. Follow the language's null-safety idiom where the compiler enforces it.
+3. **The Parameter Default (derived):** Treat 3 parameters as a soft ceiling; beyond that, prefer a typed parameter object unless there is a documented reason.

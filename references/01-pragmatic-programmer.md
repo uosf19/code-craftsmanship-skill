@@ -60,6 +60,6 @@ Software craftsmanship is not about blindly following dogma; it is about continu
 ---
 
 ## 4. Actionable Rules for our Craftsmanship Skill
-1. **The Boy Scout Rule:** Leave the campground cleaner than you found it. Whenever touching a file, fix at least one small code smell, rename an ambiguous variable, or add a missing test.
+1. **Leave It Cleaner (Boy Scout Rule, from Martin's *Clean Code*, related to this book's Broken Windows idea):** Make small, safe improvements in the code you touch (rename an ambiguous variable, add a missing test). Keep cleanup commits separate from behavior changes.
 2. **The Explicit Knowledge Invariant:** Business rules (tax rates, permission limits, timeout constants) must live in a single source of truth, never scattered across multiple apps or functions.
-3. **The Fail-Fast Rule:** Validate inputs and preconditions at the system perimeter; fail immediately with unambiguous errors if invariants are breached.
+3. **The Fail-Fast Rule:** Validate inputs and preconditions at the system perimeter; when an invariant is breached, abort the faulty operation with an unambiguous error. In long-running or offline-first systems, "crash" means stop that operation and quarantine it, not necessarily terminate the process.

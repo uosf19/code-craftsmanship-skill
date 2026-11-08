@@ -60,7 +60,7 @@ expect(result.amount).toBe(15000); // CORRECT! Tests the business outcome.
 * **Classical School (Khorikov’s Recommendation):**
   - Use real domain objects together; test a cohesive unit of **behavior**, not a single arbitrary class.
   - Mock **only** out-of-process dependencies that represent unmanaged external systems (e.g., SMS gateways, credit card terminals, external tax APIs).
-  - Never mock in-memory domain collaborators or database tables wrapped by the same business transaction.
+  - Never mock in-process domain collaborators. Managed dependencies (a database only your app uses) are tested for real in integration tests, not mocked.
 
 ---
 
@@ -73,4 +73,4 @@ expect(result.amount).toBe(15000); // CORRECT! Tests the business outcome.
 ## 6. Actionable Rules for our Craftsmanship Skill
 1. **The Stub Invariant:** Never write an assertion (`expect().toHaveBeenCalled()`) on a stub. Assert only on domain return values, state mutations, or outward mock side effects.
 2. **The Observable Behavior Rule:** Tests must verify what the system achieves for the user/caller, never how it achieves it internally.
-3. **The Unmanaged Mock Rule:** Only mock out-of-process, unmanaged dependencies (external third-party APIs); use real in-memory implementations or real database containers for domain logic.
+3. **The Unmanaged Mock Rule:** Mock only unmanaged out-of-process dependencies (external APIs, message buses visible to other systems). Keep unit tests free of the database by testing pure domain logic with real objects; exercise the database and other managed dependencies in integration tests with the real thing.

@@ -12,6 +12,8 @@ Refactoring is the process of changing a software system in such a way that it d
 
 ## 2. The Comprehensive Code Smells Taxonomy (روائح الكود)
 
+*Source note: the five-category grouping in the diagram (Bloaters, OO Abusers, Change Preventers, Dispensables, Couplers) comes from Mika Mäntylä's classification, popularized by refactoring.guru, not from Fowler's book. Fowler's 2nd edition lists 24 smells without categories. Names below use the 2nd edition (e.g., Long Function, Repeated Switches); the 1st edition used Long Method and Switch Statements.*
+
 ```mermaid
 flowchart TD
     SMELL["Code Smells (أعراض تآكل الكود)"] --> BLOAT["1. Bloaters (الانتفاخ)\nLong Method, Large Class, Data Clumps"]
@@ -78,4 +80,4 @@ flowchart TD
 ## 5. Actionable Rules for our Craftsmanship Skill
 1. **The Green-Bar Invariant:** Never initiate a structural refactoring on code that lacks automated test coverage. Write a baseline characterization test first.
 2. **The Atomic Micro-Step Rule:** Refactoring commits must be separate from feature commits. A commit should either change behavior (feature) or change structure (refactoring), never both.
-3. **The Data Clump Extractor:** Any 3 parameters appearing together in more than two function signatures must be converted into a typed Value Object.
+3. **The Data Clump Extractor (derived heuristic):** Values that keep traveling together across several function signatures are a Data Clump; consider a typed Value Object.

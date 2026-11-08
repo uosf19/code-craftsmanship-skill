@@ -69,7 +69,11 @@ Complexity is the primary enemy of software engineering. It is anything related 
 
 ---
 
-## 6. Actionable Rules for our Craftsmanship Skill
+## 6. Where Ousterhout Disagrees with Other Books in This Skill
+* **Clean Code:** Ousterhout argues that very small functions often create shallow modules and that comments capture design information code cannot; Martin favors tiny functions and fewer comments.
+* **TDD:** Ousterhout considers test-first development prone to tactical programming. See `SKILL.md` for how this skill reconciles the positions.
+
+## 7. Actionable Rules for our Craftsmanship Skill
 1. **The Deep Module Invariant:** Every class or public service must justify its existence by hiding substantial implementation complexity behind a concise, minimal public API.
 2. **Zero Pass-Through Methods:** Refactor any method that does nothing but call an identical method on an underlying object with the same parameters.
-3. **The 15% Strategic Tax:** Devote 15% of development time in every sprint/milestone to structural refactoring and design hardening before adding new features.
+3. **The Strategic Investment:** Ousterhout suggests investing roughly 10-20% of development time in design improvement. Pick a team figure in that range (this skill's default of ~15% is derived) and apply it continuously rather than as a separate phase.

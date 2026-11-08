@@ -15,7 +15,7 @@ Software engineering is the application of an empirical, scientific approach to 
 Software development is not a predictable manufacturing process; it is continuous exploration and discovery.
 1. **Iterative & Incremental Delivery:** Breaking all technical tasks into tiny, working increments that can be evaluated against real feedback.
 2. **Empirical Evidence over Dogma:** Measuring real execution metrics (latency percentiles, error rates, build times) rather than relying on theoretical assumptions.
-3. **Hypothesis-Driven Development:** Every feature or architectural change is treated as an experiment: *Hypothesis $\rightarrow$ Testable Prediction $\rightarrow$ Execution $\rightarrow$ Measurement.*
+3. **Farley's five learning practices:** Iterative, Incremental, Experimental, Empirical, and Feedback. Treating changes as experiments (*hypothesis, prediction, execution, measurement*) is the Experimental/Empirical part.
 
 ---
 
@@ -50,7 +50,7 @@ flowchart TD
 ---
 
 ## 4. Testability as the Primary Architectural Design Tool
-* **Farley’s Core Insight:** The primary value of automated testing is **not** finding bugs; it is **guiding code design**.
+* **Farley’s Core Insight:** Testability is a powerful design tool; hard-to-test code usually signals design problems (this is emphasized over bug-finding, though tests still protect against regressions).
 * If a class is difficult to write a unit test for, that code is whispering to you:
   - *"I am doing too many things (Poor Cohesion)."*
   - *"I have too many dependencies (Tight Coupling)."*

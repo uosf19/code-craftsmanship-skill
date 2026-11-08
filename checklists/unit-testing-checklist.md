@@ -8,7 +8,7 @@ Use this checklist to ensure that automated tests provide maximum regression pro
 - [ ] **Arrange-Act-Assert (AAA):** Is the test clearly partitioned into Arrange (setup), Act (execution), and Assert (verification) sections?
 - [ ] **Observable Behavior:** Does the test verify what the system achieves for the user/client, rather than asserting on internal private methods?
 - [ ] **Single Concept per Test:** Does each test verify exactly one logical business scenario or outcome?
-- [ ] **Meaningful Test Naming:** Does the test name state: `[UnitOfWork]_[Scenario]_[ExpectedResult]`? (e.g., `calculateTotal_withCompoundedTax_returnsCorrectAmount`).
+- [ ] **Meaningful Test Naming:** Does the name describe the scenario and expected behavior in plain language a non-programmer could follow? (Khorikov advises against rigid naming templates such as `[Unit]_[Scenario]_[Result]`.)
 
 ---
 
@@ -23,5 +23,5 @@ Use this checklist to ensure that automated tests provide maximum regression pro
 ## 3. The Four Pillars Evaluation
 - [ ] **Protection Against Regression:** Does the test exercise core domain complexity and edge cases where bugs could actually occur?
 - [ ] **Resistance to Refactoring:** Can the internal implementation of the class be completely rewritten without this test breaking?
-- [ ] **Fast Feedback:** Does this unit test execute in under 20 milliseconds without disk or network I/O?
+- [ ] **Fast Feedback:** Does this unit test run quickly (milliseconds) without disk or network I/O?
 - [ ] **Maintainability:** Is the test code simple, readable, and free of complex control flow logic (`if`, `for`, `try/catch` inside tests are forbidden)?

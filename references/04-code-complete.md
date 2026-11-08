@@ -17,7 +17,7 @@ Software construction is the central activity of software development. McConnell
 * **Cohesion Anti-Patterns:**
   - *Coincidental Cohesion:* Stuffing unrelated routines into a generic `Utils` or `Helper` class.
   - *Logical Cohesion:* Passing a control flag to execute one of 5 different operations inside a big `switch`.
-* **Routine Length:** Routines should be naturally bounded by their logical task. While lines of code vary, routines exceeding 50–100 lines almost always suffer from poor decomposition and high cyclomatic complexity.
+* **Routine Length:** Routines should be bounded by their logical task. McConnell cites studies suggesting routines up to roughly 200 lines are not necessarily more error-prone, but warns against going past that and favors cohesion over line counts. Verify the exact wording in the book; treat any line limit as a team default, not a book rule.
 
 ### B. Working with Variables: Lifecycle & Scoping (إدارة دورة حياة المتغيرات)
 1. **Minimize "Live Time" & "Span":**
@@ -58,6 +58,6 @@ Software construction is the central activity of software development. McConnell
 ---
 
 ## 4. Actionable Rules for our Craftsmanship Skill
-1. **The Barricade Invariant:** Every boundary accepting external data must validate 100% of inputs before forwarding to domain services; internal services must not duplicate boundary validation.
+1. **The Barricade Rule:** Every boundary accepting external data validates its inputs before forwarding to domain services; internal code need not repeat the same input validation, but should use assertions for conditions that indicate bugs, and domain objects still enforce their own business invariants.
 2. **The Variable Locality Rule:** Never declare a variable at the top of a method if it is not used until line 30. Declare it on line 29.
-3. **Complexity Ceiling:** Any routine exhibiting cyclomatic complexity $>10$ is rejected by automated CI static analysis.
+3. **Complexity Threshold (team default):** Flag routines with cyclomatic complexity above ~10 in CI and require a reviewer's justification to keep them (generated code, parsers and mapping tables are common exceptions).

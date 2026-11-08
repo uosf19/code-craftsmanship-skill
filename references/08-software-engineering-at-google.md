@@ -25,7 +25,7 @@ Software engineering is **programming integrated over time**. While programming 
 ### C. Readability & Code Review Culture
 * At Google, passing a functional code review is not enough to commit code. Code must also pass a formal **Readability Review**:
   - Focuses on idiomatic style, maintainability, simplicity, and consistency with the rest of the codebase.
-  - Rejects "clever" code: *"Clever code is an accusation."* Code should be boring, predictable, and easy to read by an engineer on call at 3 AM.
+  - Favors boring, predictable code that an engineer on call at 3 AM can read. (An earlier draft quoted a slogan here that could not be verified against the book, so it was removed.)
   - Linters and formatters handle mechanical formatting automatically; human reviewers focus on design intent, naming, and architectural alignment.
 
 ### D. Test Sizing: Small, Medium, Large (Instead of Unit vs. Integration)
@@ -44,4 +44,4 @@ Google categorizes automated tests by the resources they are permitted to consum
 ## 4. Actionable Rules for our Craftsmanship Skill
 1. **The Boring Code Invariant:** If a solution looks clever or relies on obscure language tricks, reject it in code review. Choose the simplest, most boring implementation.
 2. **The Hyrum Defense Rule:** Never expose internal data structures or non-deterministic ordering in public API contracts; explicitly sanitize and enforce contract boundaries.
-3. **The Beyoncé Test Requirement:** No bug fix or feature may be merged without an accompanying test that reproduces the bug or validates the acceptance criteria.
+3. **Regression Test Practice (derived from the Beyoncé Rule):** The book's rule is about ownership: if you want a behavior to survive infrastructure changes, you must test it. A team policy that every fix ships with a regression test is a good practice built on that idea.

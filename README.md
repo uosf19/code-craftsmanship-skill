@@ -2,7 +2,7 @@
 
 A universal, production-grade engineering playbook for writing clean, robust, deeply modular, and maintainable software. 
 
-Synthesized from **10 foundational classics** in software construction, clean code, refactoring patterns, and test-driven development curated by Dr. Milan Milanović (*Tech World With Milan*).
+Informed by **10 classic books** on software construction, clean code, refactoring, and testing. The files in `references/` are short study notes, not substitutes for the books. Numeric limits (function length, parameter count, complexity, refactoring time) are team defaults derived for this skill, and `SKILL.md` labels them as such.
 
 ---
 
@@ -39,10 +39,10 @@ Deep Modularity  Defensive Design Refactoring      Testing & TDD
  Pragmatic Prog)  Design + McConnell)
 ```
 
-1. **Code Hygiene & Deep Modularity:** Intention-revealing naming, Deep Modules over shallow pass-through methods, Command-Query Separation (CQS), Single Level of Abstraction (SLAP), and Zero-Null policies.
-2. **Complexity & Defensive Design:** The Barricade pattern for external boundary sanitization, Design by Contract (DbC), Fail-Fast & Crash Early, Hyrum's Law defense, and Cyclomatic Complexity $\le 10$.
+1. **Code Hygiene & Deep Modularity:** Intention-revealing naming, Deep Modules over shallow pass-through methods, Command-Query Separation (with documented exceptions), single level of abstraction, and a null-avoidance policy.
+2. **Complexity & Defensive Design:** The Barricade pattern for external boundary sanitization, Design by Contract (DbC), Fail-Fast & Crash Early, Hyrum's Law defense, and complexity thresholds as team defaults.
 3. **Disciplined Refactoring:** Two-Hat discipline (feature vs. refactoring), Code Smells taxonomy, Boy Scout rule, and atomic micro-step execution under green test suites.
-4. **Resilient Testing & TDD:** The Four Pillars of good tests, strict Mock vs. Stub taxonomy (never assert interactions on stubs), testing observable behavior over private details, and the Beyoncé Rule.
+4. **Resilient Testing & TDD:** The four attributes of good tests, the Mock vs. Stub taxonomy (do not assert interactions on stubs), testing observable behavior over private details, and the Beyoncé Rule.
 
 ---
 

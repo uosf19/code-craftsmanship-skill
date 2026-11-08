@@ -35,7 +35,7 @@ Factory / Builder    Adapter / Decorator  Strategy / State     Observer / Comman
 ### A. The Strategy Pattern (نمط الاستراتيجية)
 * **Definition:** Defines a family of algorithms, encapsulates each one, and makes them interchangeable. Strategy lets the algorithm vary independently from clients that use it.
 * **In our ERP:**
-  - `TaxCalculationStrategy`: Standard retail 14% vs. Restaurant 12% + 14% compounded.
+  - `TaxCalculationStrategy`: illustrative only. Rates and rules change over time, so keep them as effective-dated data (rate tables with start/end dates, verified per jurisdiction) so historical documents can be recalculated; use a Strategy when the *algorithm* differs, not merely the rate.
   - `PaymentSettlementStrategy`: Cash settlement vs. Terminal SDK vs. Online Gateway.
 
 ### B. The Adapter Pattern (نمط المحول)
@@ -46,7 +46,7 @@ Factory / Builder    Adapter / Decorator  Strategy / State     Observer / Comman
 ### C. The Observer Pattern (نمط المراقب)
 * **Definition:** Defines a one-to-many dependency between objects so that when one object changes state, all its dependents are notified automatically.
 * **In our ERP:**
-  - Real-time kitchen display updates: When an order is placed, KDS stations and POS terminals receive immediate state updates over WebSockets.
+  - In-process event notification. Across processes or devices (e.g., KDS over WebSockets) the same idea becomes publish/subscribe with delivery, ordering and retry concerns that the classic pattern does not cover.
 
 ### D. The State Pattern (نمط الحالة)
 * **Definition:** Allows an object to alter its behavior when its internal state changes. The object will appear to change its class.

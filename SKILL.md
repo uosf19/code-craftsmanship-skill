@@ -1,171 +1,143 @@
 ---
 name: code-craftsmanship
-description: Master software craftsmanship, clean code, refactoring patterns, complexity management, and resilient test-driven engineering distilled from 10 foundational software engineering classics. Use when writing, reviewing, refactoring, or testing code across any language or stack to ensure maintainability, deep modularity, and zero-defect execution.
+description: Code-quality playbook for clean code, deep modules, defensive design, refactoring, and unit testing, informed by 10 classic software engineering books. Use when the user asks to review, refactor, or write tests for existing code, or asks about naming, function design, code smells, test doubles, or TDD. Skip for pure architecture, infrastructure, or UI-design questions.
 ---
 
-# Code Craftsmanship & Modern Software Engineering Skill
+# Code Craftsmanship Skill
 
-This skill is a universal, language-agnostic engineering playbook for writing clean, robust, deeply modular, and maintainable production code. It synthesizes foundational principles from 10 landmark software engineering classics into four actionable execution pillars: **Code Hygiene**, **Complexity Management**, **Disciplined Refactoring**, and **Resilient Testing**.
+A language-agnostic playbook for readable, robust, maintainable code. It is **informed by** ten books (listed in `README.md`); the references are short study notes, not substitutes for the books.
 
 ---
 
-## The Four Craftsmanship Pillars
+## Source Notes & Attribution
 
-```text
-       [ Code Craftsmanship & Software Engineering ]
-                             |
-   +----------------+----------------+----------------+----------------+
-   |                |                |                |                |
-[ PILLAR 1 ]     [ PILLAR 2 ]     [ PILLAR 3 ]     [ PILLAR 4 ]
-Code Hygiene &   Complexity &     Disciplined      Resilient
-Deep Modularity  Defensive Design Refactoring      Testing & TDD
-(Clean Code +    (Philosophy of   (Fowler + Beck)  (Khorikov + Google)
- Pragmatic Prog)  Design + McConnell)
-```
+Material in this skill falls into three kinds:
+
+1. **Book ideas and named techniques**, attributed to their book (Boy Scout Rule: Martin; Two Hats: Beck via Fowler; Barricades: McConnell; Deep Modules: Ousterhout; Mocks vs. Stubs: Khorikov).
+2. **Industry conventions** (CQS from Meyer, Law of Demeter, cyclomatic complexity).
+3. **Team defaults derived for this skill**: numeric limits such as "3 parameters", "complexity 10", "15% refactoring time", "30-line functions". They are starting points, not claims from the books.
+
+Rules below are **defaults**. Deviate when a documented reason exists (generated code, parsers, mapping tables, performance-critical paths) and say so in the review.
+
+---
+
+## How to Apply
+
+1. **Classify the task**: writing/naming → Pillar 1; defensive design/complexity → Pillar 2; refactoring → Pillar 3 + `checklists/refactoring-checklist.md`; tests → Pillar 4 + `checklists/unit-testing-checklist.md`; code review → `checklists/code-review-checklist.md`.
+2. **Read progressively**: open only the relevant reference from `references/`.
+3. **Explain trade-offs** when two principles conflict (see Conflicts below).
+4. **Run the matching checklist** before approving a change.
 
 ---
 
 ## Pillar 1: Code Hygiene & Deep Modularity
-*Foundations: Clean Code (Martin), The Pragmatic Programmer (Thomas & Hunt), A Philosophy of Software Design (Ousterhout).*
+*Clean Code (Martin), The Pragmatic Programmer (Thomas & Hunt), A Philosophy of Software Design (Ousterhout).*
 
-### 1. Intention-Revealing Naming & Semantics
-- **Rule:** A name must state *why it exists*, *what it does*, and *how it is used* without requiring the reader to inspect the implementation.
-- **Scope-to-Length Proportionality:** The length of a variable name must be directly proportional to its lexical scope (e.g., `i` for a 3-line loop; `customerTaxIdentificationNumber` for a domain aggregate).
-- **No Disinformation:** Never use type suffixes (`orderList`, `accountMap`) unless the structure is bound strictly to that concrete container type.
+### 1. Intention-revealing names
+- A name states why it exists, what it does, and how it is used.
+- Name length grows with scope (`i` in a 3-line loop; a descriptive name for a domain concept).
+- No misleading type suffixes (`orderList` for a Set).
 
-### 2. Deep Modules vs. Shallow Breakups
-- **Rule: Pull Complexity Downwards.** Design modules, classes, and services to have a **minimal, concise public interface** that hides substantial internal implementation complexity.
-- **Eliminate Shallow Wrappers:** Reject classes or methods that simply forward arguments to an underlying service without adding business value (Zero Pass-Through Methods).
-- **Single Level of Abstraction Principle (SLAP):** A function must execute operations at a uniform conceptual level. Never mix high-level business workflow statements with low-level string/buffer manipulations.
+### 2. Deep modules over shallow breakups
+- Prefer a small interface hiding substantial implementation; pull complexity downward instead of pushing edge cases to callers.
+- Reject pass-through methods that add no value.
+- Keep one level of abstraction per function (Martin's SLAP idea).
+- Function size is a smell signal, not a goal. Default: a function that does not fit on one screen (~30 lines, derived) deserves a look; do not split code into shallow fragments just to hit a number.
 
-### 3. Command-Query Separation (CQS)
-- Methods must strictly either **mutate state** (Command) or **return state** (Query), never both.
-- Methods that calculate values must be free of observable side effects.
+### 3. Command-Query Separation (Meyer)
+- Default: a method either changes state or returns information.
+- Accepted exceptions: operations that must be atomic (`pop`, compare-and-set, `INSERT ... RETURNING`), and fluent builders. Document them.
 
-### 4. The Zero-Null Invariant
-- Never pass `null` into methods; never return `null` from methods.
-- Return empty collections, typed Result/Optional wrappers, or domain Null Objects to eradicate `NullPointerException` clutter.
+### 4. Null policy
+- Default: do not return `null` for collections or "not found" cases; return empty collections, Optional/Result types, or Null Objects. Avoid passing `null` as an argument.
+- Where the language has nullable types enforced by the compiler, follow the language idiom.
+
+### 5. Comments
+- Martin treats most comments as a smell; Ousterhout argues good comments record what code cannot express (intent, invariants, why). Use comments for *why* and contracts, not to narrate *what*.
 
 ---
 
 ## Pillar 2: Complexity Management & Defensive Design
-*Foundations: Code Complete (McConnell), A Philosophy of Software Design (Ousterhout), Software Engineering at Google (Winters et al.).*
+*Code Complete (McConnell), The Pragmatic Programmer, A Philosophy of Software Design, Software Engineering at Google.*
 
-### 1. The Barricade Pattern (حواجز الحماية)
-- **Rule:** Partition the software into an untrusted external perimeter and a trusted internal domain core:
-  ```text
-  [ External World: HTTP, Webhooks, Files ] 
-                      |
-           [ BARRICADE GATEWAY ]  <-- Sanitize, Validate with Schemas (Zod/DTOs)
-                      |
-  [ Internal Domain: Trusted Execution ] <-- Enforce Invariants, Zero Duplicate Checks
-  ```
-- All data crossing public boundaries must be sanitized and converted into immutable Value Objects. Internal routines assume data validity.
+### 1. Barricades (McConnell)
+```text
+[ External world: HTTP, files, webhooks ]
+                  |
+         [ BARRICADE ]  <-- validate, sanitize, convert to typed values
+                  |
+[ Internal code: trusted data ]  <-- assertions guard "should never happen"
+```
+- Validate external input once, at the boundary; do not repeat the same *input* validation in every internal function.
+- Inside the barricade still use **assertions** for conditions that indicate bugs (McConnell). Domain invariants (e.g., an order cannot be modified once paid) are enforced by the domain objects themselves.
 
-### 2. Design by Contract (DbC) & Crash Early
-- Routines declare explicit Preconditions, Postconditions, and Class Invariants.
-- **Fail Fast:** If an internal business invariant or contract is breached, crash early. Never swallow exceptions with empty `catch` blocks or substitute fake fallback values that corrupt financial/inventory state.
+### 2. Design by Contract and Crash Early
+- Routines state preconditions, postconditions, and invariants.
+- On a *programming error or broken invariant*, fail fast: abort the current operation/transaction with a clear error. Never swallow exceptions with an empty `catch` or substitute fake values that corrupt money or stock.
+- "Crash" means stop the faulty operation, not necessarily the whole process. Long-running or offline-first systems should quarantine the failed item and keep serving other work.
 
-### 3. Hyrum's Law Defense & Information Hiding
-- *"All observable behaviors of your system will be depended on by somebody."*
-- Expose the smallest possible API footprint. Hide ordering, internal ID generation algorithms, intermediate cache states, and raw error stack traces from external callers.
+### 3. Information hiding and Hyrum's Law
+- "All observable behaviors of your system will be depended on by somebody." Expose the smallest API surface; hide ordering, internal IDs, and raw stack traces.
 
-### 4. Complexity Thresholds
-- **Cyclomatic Complexity:** Routines must maintain cyclomatic complexity $\le 10$. Any method exceeding 10 independent execution branches must be decomposed into Polymorphism or Table-Driven lookups.
-- **Parameter Capping:** Routines are limited to a maximum of 3 parameters. Functions requiring 4+ arguments must encapsulate them into a strongly typed Parameter Object.
+### 4. Complexity thresholds (team defaults)
+- Cyclomatic complexity: investigate above ~10; McConnell's bands (0-5, 6-10, 10+) are guidance. Prefer table-driven logic or polymorphism over deep branching.
+- Parameters: Martin prefers 0-2 and treats 3 as needing justification; 4+ usually becomes a parameter object. Treat "3" as a soft ceiling.
 
 ---
 
 ## Pillar 3: Disciplined Refactoring
-*Foundations: Refactoring (Fowler), The Pragmatic Programmer (Thomas & Hunt), Modern Software Engineering (Farley).*
+*Refactoring (Fowler), Test-Driven Development (Beck), Modern Software Engineering (Farley).*
 
-### 1. The Two-Hat Rule (قاعدة القبعتين)
-- When touching code, wear only one hat at a time:
-  - **Feature Hat:** Add new observable behavior; do not alter existing structure; tests change or expand.
-  - **Refactoring Hat:** Improve internal design, names, and structure; zero observable behavior changes; tests must remain strictly green.
-- **Never mix feature development and structural refactoring in the same Git commit.**
+### 1. Two hats (Beck, popularized by Fowler)
+- Adding behavior and restructuring are different activities; switch hats deliberately. Keep them in **separate commits**. Refactoring commits keep tests green.
 
-### 2. Code Smells Response Guide
+### 2. Smell → refactoring guide (Fowler's catalog names, 2nd edition)
 
-| Detected Code Smell | Primary Diagnostic | Mandatory Refactoring Action |
+| Smell | Signal | Typical refactoring |
 | :--- | :--- | :--- |
-| **Long Method / Large Class** | Method $>30$ lines or class with multiple responsibilities. | *Extract Function* or *Extract Class*. |
-| **Data Clumps** | 3+ primitive fields always traveling together. | *Introduce Parameter Object* or *Value Object*. |
-| **Feature Envy** | Method calls another object's getters continuously. | *Move Function* to the target object. |
-| **Shotgun Surgery** | A single requirement change touches 10 files. | *Move Field/Method* to combine related concerns. |
-| **Sprawling Switch/Ifs** | Large conditionals switching on entity type codes. | *Replace Conditional with Polymorphism / Strategy*. |
+| Long Function / Large Class | Hard to name or summarize; several reasons to change | Extract Function / Extract Class |
+| Data Clumps | Same 3+ values travel together | Introduce Parameter Object / Value Object |
+| Feature Envy | Method uses another object's data more than its own | Move Function |
+| Shotgun Surgery | One change touches many places | Move Function/Field to combine concerns |
+| Repeated Switches | Same type switch in several places | Replace Conditional with Polymorphism |
+| Primitive Obsession | Raw strings/numbers for domain concepts | Replace Primitive with Object |
 
-### 3. The Boy Scout Rule
-- *"Always leave the campground cleaner than you found it."*
-- Every pull request touching legacy code must perform at least one micro-refactoring (renaming an obscure variable, extracting a helper, or removing dead code).
+### 3. Boy Scout Rule (Martin, *Clean Code*)
+- Leave the code a little cleaner than you found it. Make *small*, safe improvements in the area you touch; do not turn every PR into a cleanup project, and keep cleanup commits separate from behavior changes.
 
 ---
 
 ## Pillar 4: Resilient Testing & TDD
-*Foundations: Unit Testing: Principles, Practices, and Patterns (Khorikov), Test-Driven Development (Beck), Software Engineering at Google (Winters et al.).*
+*Unit Testing (Khorikov), Test-Driven Development (Beck), Software Engineering at Google.*
 
-### 1. The Four Pillars of a Good Test
-Evaluate every automated test against Khorikov’s non-negotiable criteria:
-1. **Protection Against Regressions:** Catches real bugs when code changes.
-2. **Resistance to Refactoring (The Keystone):** Emits zero false alarms when code is refactored without behavioral changes.
-3. **Fast Feedback:** Executes in milliseconds; runs continuously in development loops.
-4. **Maintainability:** Clear arrange-act-assert structure with low cognitive setup overhead.
+### 1. Four attributes of a good test (Khorikov)
+Protection against regressions; **resistance to refactoring** (no false alarms when behavior is unchanged); fast feedback; maintainability. Resistance to refactoring is the one you cannot trade away.
 
-### 2. Mocks vs. Stubs: The Golden Rule
-- **STUBS (Incoming Data):** Stubs supply canned inputs to the System Under Test (SUT).
-  - **Rule:** **NEVER assert interactions on a stub!** (e.g., `expect(repo.getById).toHaveBeenCalled()` is strictly forbidden). Assert only the SUT's final return value or state.
-- **MOCKS (Outgoing Side Effects):** Mocks emulate unmanaged external side effects leaving the SUT (e.g., sending an SMS, emitting an outbox event).
-  - **Rule:** **Assert interactions on mocks.** Verify that the side effect was dispatched with the correct payload.
+### 2. Mocks vs. stubs (Khorikov)
+- **Stub** = incoming data. Never assert interactions on a stub; assert the result or state.
+- **Mock** = outgoing side effect on an unmanaged dependency (email, message bus, external API). Assert the interaction.
+- Do not mock in-process domain collaborators. Unit tests exercise domain logic without a database; use real databases in integration tests.
 
-### 3. Test Observable Behavior, Not Implementation Details
-- Tests must verify **what** the code achieves for its caller, never **how** it achieves it internally.
-- Never write unit tests for private methods directly; test them exclusively through public API behavior.
+### 3. Observable behavior
+- Test what the code achieves for its caller, not how. Do not test private methods directly.
 
-### 4. The Beyoncé Rule
-- *"If you liked it, you should have put a test on it."*
-- No bug fix or feature PR is accepted without an automated test that reproduces the failure (Red) and proves the fix (Green).
+### 4. TDD and the Beyoncé Rule
+- Beck's Red-Green-Refactor is a strong default for calculation-heavy domain logic (pricing, tax, costing). It is a tool, not a law; Ousterhout argues it can steer toward tactical thinking, so pair it with design time.
+- The Beyoncé Rule (*Software Engineering at Google*): if you liked a behavior, put a test on it; infrastructure owners are not responsible for breaking untested behavior. Team policy "every fix ships with a regression test" is a good practice derived from it.
 
 ---
 
-## Master Code Review Checklist
+## Conflicts & Trade-offs Between Sources
 
-Run this checklist on every code review before merging:
-
-```markdown
-### 1. Hygiene & Naming
-- [ ] Are all names intention-revealing, pronounceable, and free of type encodings?
-- [ ] Does each function operate at a single level of abstraction (SLAP)?
-- [ ] Is Command-Query Separation (CQS) maintained?
-- [ ] Is the codebase free of naked `null` returns and parameters?
-
-### 2. Deep Modularity & Complexity
-- [ ] Is this module "Deep" (simple interface hiding substantial utility)?
-- [ ] Is cyclomatic complexity $\le 10$ across all routines?
-- [ ] Are routines restricted to $\le 3$ parameters (or wrapped in Parameter Objects)?
-- [ ] Are external inputs sanitized at a Barricade before entering the domain?
-
-### 3. Refactoring & Structure
-- [ ] Does this commit wear only one hat (pure feature OR pure refactor)?
-- [ ] Are code smells (Data Clumps, Feature Envy) eliminated?
-- [ ] Did the developer leave the touched file cleaner than they found it?
-
-### 4. Testing Integrity
-- [ ] Do tests verify observable behavior rather than internal private methods?
-- [ ] Are Stubs free of interaction assertions? (Assert state, not stub calls).
-- [ ] Are tests fast, deterministic, and resistant to false alarms during refactoring?
-```
+| Topic | One side | Other side | Guidance |
+| :--- | :--- | :--- | :--- |
+| Function size | Martin: tiny functions, one thing | Ousterhout: too many small functions create shallow modules | Split when it improves understanding; keep related logic together behind a deep interface |
+| Comments | Martin: comments often signal failure | Ousterhout: comments capture design intent | Comment the why, not the what |
+| TDD | Beck: test-first drives design | Ousterhout: can promote tactical programming | Use test-first for logic-dense code; always allocate design time |
+| Validation | McConnell: validate at barricade | Domain design: objects enforce their own invariants | Syntax/format at the boundary; business invariants inside the domain |
+| Crash early | Pragmatic Programmer | Offline/long-running systems must stay up | Abort the operation, quarantine, keep the process alive |
 
 ---
 
-## Detailed References Directory
-Consult individual book summaries and deep chapter notes in the `references/` directory:
-- [01. The Pragmatic Programmer (Thomas & Hunt)](file:///c:/Users/yusse/Documents/Projects/SaaS/docs/skills/code-craftsmanship/references/01-pragmatic-programmer.md)
-- [02. Clean Code (Robert C. Martin)](file:///c:/Users/yusse/Documents/Projects/SaaS/docs/skills/code-craftsmanship/references/02-clean-code.md)
-- [03. Refactoring (Martin Fowler)](file:///c:/Users/yusse/Documents/Projects/SaaS/docs/skills/code-craftsmanship/references/03-refactoring.md)
-- [04. Code Complete (Steve McConnell)](file:///c:/Users/yusse/Documents/Projects/SaaS/docs/skills/code-craftsmanship/references/04-code-complete.md)
-- [05. A Philosophy of Software Design (John Ousterhout)](file:///c:/Users/yusse/Documents/Projects/SaaS/docs/skills/code-craftsmanship/references/05-philosophy-of-software-design.md)
-- [06. Modern Software Engineering (David Farley)](file:///c:/Users/yusse/Documents/Projects/SaaS/docs/skills/code-craftsmanship/references/06-modern-software-engineering.md)
-- [07. Head First Design Patterns (Freeman & Robson)](file:///c:/Users/yusse/Documents/Projects/SaaS/docs/skills/code-craftsmanship/references/07-head-first-design-patterns.md)
-- [08. Software Engineering at Google (Winters et al.)](file:///c:/Users/yusse/Documents/Projects/SaaS/docs/skills/code-craftsmanship/references/08-software-engineering-at-google.md)
-- [09. Test-Driven Development: By Example (Kent Beck)](file:///c:/Users/yusse/Documents/Projects/SaaS/docs/skills/code-craftsmanship/references/09-test-driven-development.md)
-- [10. Unit Testing: Principles, Practices, and Patterns (Khorikov)](file:///c:/Users/yusse/Documents/Projects/SaaS/docs/skills/code-craftsmanship/references/10-unit-testing-principles.md)
+## Reference Directory
+Notes per book are in `references/` (`01-pragmatic-programmer.md` through `10-unit-testing-principles.md`); checklists in `checklists/`. Run `checklists/code-review-checklist.md` for reviews instead of duplicating its items here.
