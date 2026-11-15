@@ -13,35 +13,25 @@ Software engineering is **programming integrated over time**. While programming 
 ## 2. Core Methodologies & Google Engineering Laws
 
 ### A. Hyrum’s Law: The Law of Implicit Interfaces
-> *"With a sufficient number of users of an API, it does not matter what you promise in the contract: all observable behaviors of your system will be depended on by somebody."*
-* **The Reality:** Even if you explicitly document that an API's return order is random, or an error message string is undefined, callers *will* write code relying on the exact current behavior.
-* **Engineering Defense:** Keep surface areas as small as possible. Never leak internal details (e.g., database sequence IDs, raw error traces, or deterministic iteration orders of sets) unless they are part of the formal contract.
+Given enough consumers, callers can depend even on behavior outside an API's explicit contract. **Derived application.** Keep the public surface small and document ordering and identifiers where callers need a guarantee. [Hyrum Wright's formulation](https://www.hyrumslaw.com/)
 
 ### B. The Beyoncé Rule (قاعدة بيونسيه للاختبارات)
-> *"If you liked it, you should have put a test on it."*
-* If an infrastructure change, dependency upgrade, or refactoring breaks a feature that had no automated test verifying it, **the fault lies with the feature owner for not writing the test**, not with the engineer who upgraded the infrastructure.
-* Do not blame the compiler or the upgrade: untested behavior does not exist.
+The rule says to automate tests for behavior you want to preserve, including failure handling. Chapter 11 gives the example of an infrastructure change that passes existing tests and still breaks a product. The product team owns the fix and the additional coverage. [Software Engineering at Google, Chapter 11](https://abseil.io/resources/swe-book/html/ch11.html#the-beyonc%C3%A9-rule)
 
 ### C. Readability & Code Review Culture
-* At Google, passing a functional code review is not enough to commit code. Code must also pass a formal **Readability Review**:
-  - Focuses on idiomatic style, maintainability, simplicity, and consistency with the rest of the codebase.
-  - Favors boring, predictable code that an engineer on call at 3 AM can read. (An earlier draft quoted a slogan here that could not be verified against the book, so it was removed.)
-  - Linters and formatters handle mechanical formatting automatically; human reviewers focus on design intent, naming, and architectural alignment.
+Google describes readability approval and language mentorship in Chapter 3. An author with the language's readability certification can supply that approval through authorship. **Derived application.** Automate mechanical formatting and use review time for intent, idioms, and the clarity of public interfaces. [Software Engineering at Google, Chapter 3](https://abseil.io/resources/swe-book/html/ch03.html#readability-standardized-mentorship-through-code-review)
 
 ### D. Test Sizing: Small, Medium, Large (Instead of Unit vs. Integration)
-Google categorizes automated tests by the resources they are permitted to consume:
-* **Small Tests:** Run in a single process, single thread, no disk I/O, no network calls, execute in milliseconds (pure logic).
-* **Medium Tests:** May run on a single machine, touch a local database (e.g., local Docker Postgres/SQLite), execute in seconds.
-* **Large Tests:** May span multiple network machines, staging environments, execute in minutes.
+Google distinguishes scope (the behavior exercised) from size (resources the test uses). Small tests run in one process without blocking I/O. Medium tests can use services on the same machine, such as a local database. Large tests can span machines. [Software Engineering at Google, Chapter 11](https://abseil.io/resources/swe-book/html/ch11.html#test-size)
 
 ---
 
 ## 3. Large-Scale Changes (LSC) & Upgrades
-* Code must be structured so that global dependency upgrades (e.g., updating TypeScript or Drizzle ORM) can be applied atomically across the entire repository without leaving stranded legacy versions.
+Google describes staging logically related changes when one atomic update is impractical. **Derived application.** Keep supported contracts usable during migration and validate compatible intermediate states. [Software Engineering at Google, Chapter 22](https://abseil.io/resources/swe-book/html/ch22.html)
 
 ---
 
 ## 4. Actionable Rules for our Craftsmanship Skill
-1. **The Boring Code Invariant:** If a solution looks clever or relies on obscure language tricks, reject it in code review. Choose the simplest, most boring implementation.
-2. **The Hyrum Defense Rule:** Never expose internal data structures or non-deterministic ordering in public API contracts; explicitly sanitize and enforce contract boundaries.
-3. **Regression Test Practice (derived from the Beyoncé Rule):** The book's rule is about ownership: if you want a behavior to survive infrastructure changes, you must test it. A team policy that every fix ships with a regression test is a good practice built on that idea.
+1. **Readability (Derived).** Prefer clear, idiomatic code that another maintainer can understand without extra context.
+2. **Contract boundaries (Derived).** Expose only the state and ordering the public contract needs.
+3. **Regression coverage (Derived).** Add a targeted test when a fix reveals an uncovered behavior that should survive future changes.

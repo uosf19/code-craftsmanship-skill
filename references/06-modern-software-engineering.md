@@ -15,7 +15,7 @@ Software engineering is the application of an empirical, scientific approach to 
 Software development is not a predictable manufacturing process; it is continuous exploration and discovery.
 1. **Iterative & Incremental Delivery:** Breaking all technical tasks into tiny, working increments that can be evaluated against real feedback.
 2. **Empirical Evidence over Dogma:** Measuring real execution metrics (latency percentiles, error rates, build times) rather than relying on theoretical assumptions.
-3. **Farley's five learning practices:** Iterative, Incremental, Experimental, Empirical, and Feedback. Treating changes as experiments (*hypothesis, prediction, execution, measurement*) is the Experimental/Empirical part.
+3. **Farley's five learning practices.** The publisher's table of contents lists iteration, feedback, incrementalism, empiricism, and experimentation in Part II, Chapters 4–8. Chapter 8 lists sections on hypothesis and measurement. [InformIT publisher contents](https://www.informit.com/store/modern-software-engineering-doing-what-works-to-build-9780137314911)
 
 ---
 
@@ -50,16 +50,11 @@ flowchart TD
 ---
 
 ## 4. Testability as the Primary Architectural Design Tool
-* **Farley’s Core Insight:** Testability is a powerful design tool; hard-to-test code usually signals design problems (this is emphasized over bug-finding, though tests still protect against regressions).
-* If a class is difficult to write a unit test for, that code is whispering to you:
-  - *"I am doing too many things (Poor Cohesion)."*
-  - *"I have too many dependencies (Tight Coupling)."*
-  - *"My interface is confusing (Poor Abstraction)."*
-* **Rule:** If code is untestable, the design is broken. Fix the design, do not hack the test.
+Farley covers testability and modularity in Chapter 9, separation of concerns and dependency injection in Chapter 11, and testability as a tool in Chapter 14. [InformIT publisher contents](https://www.informit.com/store/modern-software-engineering-doing-what-works-to-build-9780137314911)
 
 ---
 
 ## 5. Actionable Rules for our Craftsmanship Skill
-1. **The Testability Canary:** Any piece of code that requires extensive mocking or setup in a test must be treated as architectural defect evidence and refactored for loose coupling.
-2. **The High Cohesion Mandate:** Every service, module, or package must represent a single, tightly knit responsibility; unrelated concerns must be split immediately.
-3. **The Empirical Feedback Rule:** All performance and concurrency claims must be verified by automated benchmark tests in CI, never assumed by developer intuition.
+1. **Testability (Derived).** Investigate heavy unit-test setup for coupled responsibilities. Use integration tests when the guarantee depends on real infrastructure.
+2. **Cohesion (Derived).** Split behavior that changes independently when that makes the new modules easier to use and understand.
+3. **Empirical feedback (Derived).** Verify concurrency behavior in an integration test. Measure performance-sensitive paths with a reproducible workload and the project's agreed budgets.

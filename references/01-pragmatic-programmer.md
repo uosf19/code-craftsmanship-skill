@@ -15,9 +15,8 @@ Software craftsmanship is not about blindly following dogma; it is about continu
 ### A. The Broken Window Theory (محاربة العفن البرمجي)
 * **The Concept:** In urban psychology, a single unrepaired broken window in a building signals neglect, rapidly encouraging more vandalism and deterioration.
 * **In Software Construction:**
-  - Never leave bad designs, wrong decisions, failing tests, or "temporarily hacked" code unfixed.
-  - Fix every "broken window" as soon as it is spotted. If it cannot be fixed immediately, board it up (comment it out, mark with a high-priority ticket, or isolate behind a feature toggle).
-  - Neglect accelerates technical debt exponentially.
+  - Address defects in the area being changed when the correction is safe and in scope. Record unrelated findings for follow-up.
+  - Use the project's incident or defect procedure when isolation is needed. Preserve the user's edits and existing behavior during cleanup.
 
 ### B. DRY: Don't Repeat Yourself (نقاء التمثيل المعرفي)
 * **The Real Definition:** DRY is **not** about deduplicating identical lines of code. It states:
@@ -47,11 +46,10 @@ Software craftsmanship is not about blindly following dogma; it is about continu
   1. **Preconditions:** What must be true before the routine executes (caller's responsibility).
   2. **Postconditions:** What the routine guarantees upon completion (routine's responsibility).
   3. **Class Invariants:** Conditions that must always remain true before and after routine execution.
-* If a contract is violated, the system must **Crash Early** rather than propagate corrupted state.
+* Reject invalid requests at the responsible boundary. A programming error or broken invariant calls for an explicit failure of the affected operation.
 
 ### B. Crash Early (الموت المبكر للبرنامج)
-* Dead programs do far less damage than crippled, corrupted programs.
-* Never swallow exceptions with empty `catch` blocks. If an unrecoverable invariant is breached, fail fast, emit structured diagnostics, and let supervisor processes restart the boundary safely.
+* Stop the affected operation and record diagnostic evidence when its state is unsafe. Restart a process if its own state cannot recover safely. In an offline queue, preserve independent work and distinguish a transient failure, a recorded rejection, and an externally uncertain outcome.
 
 ### C. The Law of Demeter (LoD)
 * Minimize coupling between modules: *"Only talk to your immediate friends."*
@@ -60,6 +58,6 @@ Software craftsmanship is not about blindly following dogma; it is about continu
 ---
 
 ## 4. Actionable Rules for our Craftsmanship Skill
-1. **Leave It Cleaner (Boy Scout Rule, from Martin's *Clean Code*, related to this book's Broken Windows idea):** Make small, safe improvements in the code you touch (rename an ambiguous variable, add a missing test). Keep cleanup commits separate from behavior changes.
-2. **The Explicit Knowledge Invariant:** Business rules (tax rates, permission limits, timeout constants) must live in a single source of truth, never scattered across multiple apps or functions.
-3. **The Fail-Fast Rule:** Validate inputs and preconditions at the system perimeter; when an invariant is breached, abort the faulty operation with an unambiguous error. In long-running or offline-first systems, "crash" means stop that operation and quarantine it, not necessarily terminate the process.
+1. **Leave it cleaner (Derived application).** The Boy Scout Rule is Martin's application of the scouting rule in *Clean Code* Chapter 1 and is related to the Broken Windows idea. Make small, safe improvements in the touched code when they fit the task. Keep structural and behavior changes in reviewable steps and commit only when authorized. [Martin's published chapter excerpt](https://www.informit.com/articles/article.aspx?p=1235624&seqNum=6)
+2. **A single rule authority:** Give each shared policy an authoritative version. If offline and server runtimes both implement it, verify them with shared exact fixtures and record which policy revision produced each result.
+3. **Fail fast within the operation (Derived application).** Validate external data at the boundary. Abort the affected operation with a visible outcome if an invariant is violated. Preserve durable state and let independent eligible work proceed.

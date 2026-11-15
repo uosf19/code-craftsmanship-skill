@@ -12,7 +12,7 @@ Refactoring is the process of changing a software system in such a way that it d
 
 ## 2. The Comprehensive Code Smells Taxonomy (روائح الكود)
 
-*Source note: the five-category grouping in the diagram (Bloaters, OO Abusers, Change Preventers, Dispensables, Couplers) comes from Mika Mäntylä's classification, popularized by refactoring.guru, not from Fowler's book. Fowler's 2nd edition lists 24 smells without categories. Names below use the 2nd edition (e.g., Long Function, Repeated Switches); the 1st edition used Long Method and Switch Statements.*
+The diagram uses Mika Mäntylä's five-group taxonomy. The candidate refactorings below use terminology from Fowler's catalog, including 2nd-edition names such as Long Function and Repeated Switches. [Mäntylä's taxonomy](https://mmantyla.github.io/BadCodeSmellsTaxonomy) · [Fowler's book and catalog](https://martinfowler.com/books/refactoring.html)
 
 ```mermaid
 flowchart TD
@@ -24,23 +24,26 @@ flowchart TD
 ```
 
 ### A. The Most Critical Smells in Enterprise Software
-1. **Mysterious Name:** Names that require reading implementation lines to decipher intent $\rightarrow$ *Fix: Rename Variable / Rename Function.*
-2. **Duplicated Code:** Identical or subtly different code blocks in multiple places $\rightarrow$ *Fix: Extract Function / Pull Up Method.*
-3. **Long Parameter List:** Routines passing 5+ individual variables $\rightarrow$ *Fix: Introduce Parameter Object / Preserve Whole Object.*
-4. **Global Data:** State accessible and mutable from anywhere $\rightarrow$ *Fix: Encapsulate Variable.*
-5. **Mutable Data:** Unconstrained in-place state mutations across scopes $\rightarrow$ *Fix: Separate Query from Modifier / Remove Setting Method.*
-6. **Divergent Change:** A single class is modified in different ways for different reasons (violates Single Responsibility) $\rightarrow$ *Fix: Split Class.*
-7. **Shotgun Surgery:** A single business change requires making dozens of small edits across multiple different classes $\rightarrow$ *Fix: Move Function / Combine Functions into Class.*
-8. **Feature Envy:** A method in Class A accesses data and methods of Class B far more than its own $\rightarrow$ *Fix: Move Function to Class B.*
-9. **Data Clumps:** Groups of data items that always appear together (e.g., `city`, `street`, `postalCode`) $\rightarrow$ *Fix: Extract Class / Value Object.*
-10. **Speculative Generality:** Complex abstractions, hooks, and inheritance hierarchies added "just in case" for future needs $\rightarrow$ *Fix: Collapse Hierarchy / Remove Dead Code.*
+
+Consider a candidate when it addresses a concrete maintenance problem and preserves behavior.
+
+1. **Mysterious Name.** Consider Rename Variable or Rename Function when the current name hides intent.
+2. **Duplicated Code.** Consider Extract Function when the code represents one rule that should change together.
+3. **Long Parameter List.** Consider Introduce Parameter Object or Preserve Whole Object when fields form a cohesive concept.
+4. **Global Data.** Consider Encapsulate Variable when shared access makes mutation hard to reason about.
+5. **Mutable Data.** Consider limiting setters or separating ordinary queries from mutations when callers need predictable side effects.
+6. **Divergent Change.** Consider Extract Class when a single class changes for independent reasons.
+7. **Shotgun Surgery.** Consider moving functions together when one business change regularly requires edits across modules.
+8. **Feature Envy.** Consider Move Function when it puts behavior next to the invariant and reduces coupling.
+9. **Data Clumps.** Consider a parameter object or value object for fields that recur together and have shared meaning.
+10. **Speculative Generality.** Consider collapsing an abstraction after confirming its extension points are unused.
 
 ---
 
 ## 3. High-Value Refactoring Techniques (التقنيات الأساسية)
 
 ### 1. Extract Function (استخراج الدالة)
-* Whenever code requires comments to explain what a block does, extract that block into a standalone function named after the **intent**, not the mechanism:
+* Extract a cohesive operation when naming it lets the caller read at a useful level of detail. Keep comments that explain an invariant or design reason.
   ```typescript
   // Before
   function printOwing(invoice: Invoice) {
@@ -58,10 +61,10 @@ flowchart TD
   ```
 
 ### 2. Replace Conditional with Polymorphism (استبدال الشروط بالتعددية الشكلية)
-* Replace sprawling `switch(orderType)` statements with polymorphic strategy classes or specialized subclasses to eliminate Shotgun Surgery when new types are added.
+* Consider polymorphism when several switches repeat decisions that vary independently by type. Keep a single exhaustive switch or match when it expresses a closed set of variants clearly. A table can be a good fit for data-only differences. [Fowler's refactoring catalog](https://refactoring.com/catalog/replaceConditionalWithPolymorphism.html)
 
 ### 3. Replace Primitive with Object (استبدال الأنواع البدائية بكائنات القيمة)
-* Wrap primitive numbers/strings representing domain concepts into immutable Value Objects (e.g., wrapping a string into `PhoneNumber`, or a number into `Money`).
+* Consider a value object when it centralizes validation or prevents invalid operations, such as adding amounts in different currencies.
 
 ### 4. Slide Statements & Decompose Conditional
 * Reorder statements so that related state modifications live physically together, and break complex boolean expressions (`if (date.before(SUMMER_START) || date.after(SUMMER_END))`) into readable boolean functions (`if (isSummer(date))`).
@@ -69,15 +72,11 @@ flowchart TD
 ---
 
 ## 4. The Golden Rule of Safe Refactoring
-> **"Refactoring must always be performed in micro-steps under the protection of green automated tests."**
-* Step 1: Ensure all tests pass (Green).
-* Step 2: Make a single mechanical change (e.g., rename or extract).
-* Step 3: Run the test suite immediately.
-* Step 4: If green, commit or proceed. If red, revert immediately—never debug inside an incomplete refactor.
+Fowler describes small behavior-preserving transformations and credits Kent Beck for the Two Hats metaphor. [Fowler's Two Hats example](https://martinfowler.com/articles/preparatory-refactoring-example.html#TheTwoHats)
+
+Derived workflow. Record the relevant test baseline and existing working changes, make a small edit, and rerun focused checks. If the step introduced a regression, fix it or undo only that step while preserving previous work.
 
 ---
 
 ## 5. Actionable Rules for our Craftsmanship Skill
-1. **The Green-Bar Invariant:** Never initiate a structural refactoring on code that lacks automated test coverage. Write a baseline characterization test first.
-2. **The Atomic Micro-Step Rule:** Refactoring commits must be separate from feature commits. A commit should either change behavior (feature) or change structure (refactoring), never both.
-3. **The Data Clump Extractor (derived heuristic):** Values that keep traveling together across several function signatures are a Data Clump; consider a typed Value Object.
+Use the derived [refactoring checklist](../checklists/refactoring-checklist.md) for working-tree safety, characterization tests, and handling existing failures. Keep structural edits distinguishable from behavior changes. Create separate commits only when authorized and useful to review.

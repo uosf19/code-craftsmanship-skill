@@ -42,19 +42,11 @@ The ratio of time spent reading code versus writing new code is well over 10 to 
    - **No Flag Arguments:** Passing a boolean flag (`render(isSuite: boolean)`) proves the function does two things. Split it into `renderForSuite()` and `renderSingle()`.
 
 ### C. Command-Query Separation (CQS)
-* A function should either **do something** (mutate state) or **answer something** (return state), but never both:
-  ```typescript
-  // Bad: Mutates state AND returns boolean success check
-  if (set("username", "unclebob")) { ... }
-
-  // Good: Explicit separation
-  if (attributeExists("username")) {
-    setAttribute("username", "unclebob");
-  }
-  ```
+* Meyer’s command–query separation gives callers a side-effect-free way to read state. *Clean Code* discusses the principle in Chapter 3 under Command Query Separation.
+* **Derived application.** Keep a command and its result together when the contract requires atomicity. For example, `INSERT ... RETURNING` can return the row it actually inserted. A conditional write can check its precondition in the same statement as the update. Fluent builders can return the receiver.
 
 ### D. Error Handling as a First-Class Citizen
-* **Use Exceptions Rather than Return Codes:** Error return codes force callers to write deeply nested `if/else` checks, polluting the happy path.
+* **Use Exceptions Rather than Return Codes** is Martin's advice in Chapter 7. **Derived application.** Follow the language's failure model. Typed results are idiomatic in Rust, for example.
 * **Write Try-Catch-Finally First:** A `try` block defines a scope boundary. Extract the body of the `try` and `catch` blocks into separate named functions to preserve single responsibility.
 * **Don't Return Null:** Returning `null` creates rampant `if (obj !== null)` clutter and inevitable runtime crashes. Return empty collections, Optional/Maybe types, or Null Objects.
 * **Don't Pass Null:** Passing `null` into method parameters should be forbidden by type systems and static linters.
@@ -63,5 +55,5 @@ The ratio of time spent reading code versus writing new code is well over 10 to 
 
 ## 3. Actionable Rules for our Craftsmanship Skill
 1. **The Single Abstraction Rule:** Never mix high-level business orchestration with low-level technical plumbing in the same function.
-2. **The Null Default:** Production APIs and domain routines should not return `null` for collections or "not found" cases; return empty sets, Optional/Result types, or Null Objects. Follow the language's null-safety idiom where the compiler enforces it.
+2. **Absence and empty results (Derived).** Prefer empty collections for valid empty results. Represent absence and failure using the language's idioms and preserve the difference between missing, null, and empty values in a wire contract.
 3. **The Parameter Default (derived):** Treat 3 parameters as a soft ceiling; beyond that, prefer a typed parameter object unless there is a documented reason.

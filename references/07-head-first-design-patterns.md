@@ -35,7 +35,7 @@ Factory / Builder    Adapter / Decorator  Strategy / State     Observer / Comman
 ### A. The Strategy Pattern (نمط الاستراتيجية)
 * **Definition:** Defines a family of algorithms, encapsulates each one, and makes them interchangeable. Strategy lets the algorithm vary independently from clients that use it.
 * **In our ERP:**
-  - `TaxCalculationStrategy`: illustrative only. Rates and rules change over time, so keep them as effective-dated data (rate tables with start/end dates, verified per jurisdiction) so historical documents can be recalculated; use a Strategy when the *algorithm* differs, not merely the rate.
+  - `TaxCalculationStrategy` illustrates algorithms that genuinely vary. Effective-dated rate values are data. Preserve the rule snapshot applied to finalized documents according to the project's contract.
   - `PaymentSettlementStrategy`: Cash settlement vs. Terminal SDK vs. Online Gateway.
 
 ### B. The Adapter Pattern (نمط المحول)
@@ -56,6 +56,6 @@ Factory / Builder    Adapter / Decorator  Strategy / State     Observer / Comman
 ---
 
 ## 4. Actionable Rules for our Craftsmanship Skill
-1. **The Composition-First Invariant:** Never use class inheritance solely for code reuse. Use inheritance only when an undeniable "is-a" polymorphic relationship exists; otherwise, use composition.
-2. **The Strategy Rule for Volatile Algorithms:** Any business calculation subject to regulatory or commercial variation (taxes, discounts, shipping fees) must be encapsulated in a Strategy class.
-3. **The Adapter Isolation Rule:** No third-party SDK or external API library may be called directly from core domain services. It must be wrapped by an Adapter.
+1. **Composition (Derived).** Prefer composition for code reuse. Use inheritance when callers can substitute the implementation without changing the contract.
+2. **Strategy (Derived).** Consider interchangeable implementations when distinct algorithms vary independently. Use data for configuration differences and keep an exhaustive switch or match where the closed variants are clear together.
+3. **Adapters (Derived).** Isolate a third-party protocol behind a domain-facing interface when that protects the domain from vendor details.

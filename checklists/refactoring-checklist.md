@@ -1,28 +1,25 @@
 # Disciplined Refactoring Checklist
 
-Use this checklist whenever improving existing code to guarantee that internal structure is transformed without breaking external behavior.
+Use these derived defaults when changing structure while preserving observable behavior.
 
 ---
 
 ## 1. Pre-Refactoring Safety Check
-- [ ] **Green Test Baseline:** Does the target code have automated test coverage? Do all tests pass right now?
-  - *If NO:* Write a characterization test verifying current observable behavior before touching any production code.
-- [ ] **One-Hat Discipline:** Are you wearing strictly the Refactoring Hat? (No new features or bug fixes allowed in this pass).
-- [ ] **Clean Working Directory:** Is Git working tree clean so you can revert instantly with `git checkout` if a refactor goes red?
+- [ ] **Baseline.** Run the tests relevant to the affected behavior and record pre-existing failures. Add characterization coverage if the current behavior lacks protection. If you cannot verify a high-risk change, narrow it or report the verification gap.
+- [ ] **Scope.** Separate structural and behavior changes into reviewable steps. Preserve existing callers, serialized data, and effects unless the task calls for a behavior change.
+- [ ] **Existing edits.** Inspect the affected files and current diff. Preserve user edits, including when they overlap the work.
 
 ---
 
 ## 2. Smell Identification & Transformation Plan
-- [ ] **Long Method:** Target extracted into cohesive helper methods named after business intent.
-- [ ] **Data Clump:** Recurring group of primitives ($3+$) converted into an immutable Value Object.
-- [ ] **Feature Envy:** Method that frequently calls another class moved directly onto that class.
-- [ ] **Switch Statement on Type:** Replaced with Polymorphic subclasses or Strategy pattern objects.
-- [ ] **Primitive Obsession:** Domain concepts (Currency, Phone, Email, Tax ID) wrapped into dedicated Value Objects.
+- [ ] **Long method.** Extract a cohesive operation if the caller becomes clearer and the boundary hides meaningful detail.
+- [ ] **Data clump or primitive obsession.** Consider a value type when fields share an invariant, validation needs a single home, or the type prevents misuse.
+- [ ] **Feature envy.** Consider moving behavior to the module that owns the invariant if it reduces coupling.
+- [ ] **Repeated switches.** When the same decision changes in several places, consider a shared decision table or polymorphism. Keep a clear exhaustive switch or match when the variant set is closed and the branches are easier to understand together.
 
 ---
 
 ## 3. Micro-Step Execution
-- [ ] **Atomic Step:** Make exactly one structural change at a time (e.g., extract one method or rename one variable).
-- [ ] **Immediate Test Run:** Run test suite immediately after the change.
-- [ ] **Revert on Failure:** If tests break or unexpected side effects emerge, revert to green immediately. Never debug inside an incomplete refactoring step.
-- [ ] **Separate Commit:** Commit the refactoring change with a descriptive message (e.g., `refactor: extract calculateTaxFromLine from OrderService`).
+- [ ] **Small steps.** Keep each edit small enough to inspect and verify. Run focused checks after each meaningful step, then run the project's broader checks as appropriate.
+- [ ] **Failure recovery.** Compare with the baseline. If an edit introduced a regression, correct it or undo only the changes from that step while preserving pre-existing work.
+- [ ] **Version control.** Commit only with authorization. If separate commits aid review, keep structural edits in their own commit.

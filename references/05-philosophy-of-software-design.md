@@ -48,8 +48,7 @@ Complexity is the primary enemy of software engineering. It is anything related 
   - *Classic Example: Unix File I/O:* Just 5 system calls (`open`, `read`, `write`, `close`, `lseek`) hide disk formatting, sector allocations, caching, and physical hardware drivers.
 
 ### The Golden Rule: "Pull Complexity Downwards"
-> *"It is better for a module's author to suffer complexity once than for its thousands of callers to suffer complexity forever."*
-* Never push edge cases or technical quirks upward to the caller. The module should absorb and resolve the complexity internally.
+* Handle implementation details and their edge cases inside the module when callers can use a simpler interface as a result. [Ousterhout's design course summary](https://web.stanford.edu/~ouster/cs190-winter23/slides/wrapup.pdf)
 
 ---
 
@@ -59,7 +58,7 @@ Complexity is the primary enemy of software engineering. It is anything related 
   - Accumulates "tactical tornadoes" of spaghetti dependencies and technical debt.
 * **Strategic Programming (The Investment Mindset):**
   - Treating working code as insufficient; the code must also facilitate future modifications.
-  - Investing **10% to 20% of engineering time** into proactive refactoring, clean interfaces, and deep design.
+  - Reserving time for design work as part of normal development. Ousterhout's course notes discuss a possible 10–20% investment alongside Chapter 3. [Ousterhout's Chapter 3 course notes](https://web.stanford.edu/~ouster/cgi-bin/cs190-winter18/lecture.php?topic=working)
 
 ---
 
@@ -71,9 +70,9 @@ Complexity is the primary enemy of software engineering. It is anything related 
 
 ## 6. Where Ousterhout Disagrees with Other Books in This Skill
 * **Clean Code:** Ousterhout argues that very small functions often create shallow modules and that comments capture design information code cannot; Martin favors tiny functions and fewer comments.
-* **TDD:** Ousterhout considers test-first development prone to tactical programming. See `SKILL.md` for how this skill reconciles the positions.
+* **TDD:** Ousterhout considers test-first development prone to tactical programming. The [trade-offs table](../SKILL.md#conflicts--trade-offs-between-sources) describes when this skill prefers test-first.
 
 ## 7. Actionable Rules for our Craftsmanship Skill
-1. **The Deep Module Invariant:** Every class or public service must justify its existence by hiding substantial implementation complexity behind a concise, minimal public API.
-2. **Zero Pass-Through Methods:** Refactor any method that does nothing but call an identical method on an underlying object with the same parameters.
-3. **The Strategic Investment:** Ousterhout suggests investing roughly 10-20% of development time in design improvement. Pick a team figure in that range (this skill's default of ~15% is derived) and apply it continuously rather than as a separate phase.
+1. **Module depth (Derived).** Keep a coherent, easy-to-use public interface that hides the details callers do not need.
+2. **Delegation (Derived).** Review forwarding methods for the boundary they provide. An adapter, compatibility layer, or facade can make a stable contract even when its current implementation delegates.
+3. **Design investment (Derived).** Make design work part of delivery. Agree on the time based on the project's maintenance needs.

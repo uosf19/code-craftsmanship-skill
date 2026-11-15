@@ -1,11 +1,11 @@
 ---
 name: code-craftsmanship
-description: Code-quality playbook for clean code, deep modules, defensive design, refactoring, and unit testing, informed by 10 classic software engineering books. Use when the user asks to review, refactor, or write tests for existing code, or asks about naming, function design, code smells, test doubles, or TDD. Skip for pure architecture, infrastructure, or UI-design questions.
+description: Use when implementing new code, changing existing behavior, reviewing code, refactoring, or designing tests. Also use for naming, function design, defensive validation, code smells, test doubles, and TDD.
 ---
 
 # Code Craftsmanship Skill
 
-A language-agnostic playbook for readable, robust, maintainable code. It is **informed by** ten books (listed in `README.md`); the references are short study notes, not substitutes for the books.
+A language-agnostic playbook for readable, robust, maintainable code. The [README](README.md) lists the ten books that inform these study notes.
 
 ---
 
@@ -15,23 +15,22 @@ Material in this skill falls into three kinds:
 
 1. **Book ideas and named techniques**, attributed to their book (Boy Scout Rule: Martin; Two Hats: Beck via Fowler; Barricades: McConnell; Deep Modules: Ousterhout; Mocks vs. Stubs: Khorikov).
 2. **Industry conventions** (CQS from Meyer, Law of Demeter, cyclomatic complexity).
-3. **Team defaults derived for this skill**: numeric limits such as "3 parameters", "complexity 10", "15% refactoring time", "30-line functions". They are starting points, not claims from the books.
+3. **Derived guidance** comprises team defaults, such as reviewing functions around 30 lines, and project applications, such as matching tests to the guarantees they exercise.
 
-Rules below are **defaults**. Deviate when a documented reason exists (generated code, parsers, mapping tables, performance-critical paths) and say so in the review.
+Follow the project's behavior contracts and the user's scope. Treat these heuristics as defaults and explain material trade-offs in review.
 
 ---
 
 ## How to Apply
 
-1. **Classify the task**: writing/naming → Pillar 1; defensive design/complexity → Pillar 2; refactoring → Pillar 3 + `checklists/refactoring-checklist.md`; tests → Pillar 4 + `checklists/unit-testing-checklist.md`; code review → `checklists/code-review-checklist.md`.
-2. **Read progressively**: open only the relevant reference from `references/`.
-3. **Explain trade-offs** when two principles conflict (see Conflicts below).
-4. **Run the matching checklist** before approving a change.
+1. Use Pillars 1–2 for writing code and apply the project's [language idioms](references/11-language-idioms.md). Use Pillar 3 and the [refactoring checklist](checklists/refactoring-checklist.md) for structural changes.
+2. Use Pillar 4 and the [testing checklist](checklists/unit-testing-checklist.md) for verification, or the [code review checklist](checklists/code-review-checklist.md) for reviews.
+3. Open the references for the affected topic as needed and explain material trade-offs.
 
 ---
 
 ## Pillar 1: Code Hygiene & Deep Modularity
-*Clean Code (Martin), The Pragmatic Programmer (Thomas & Hunt), A Philosophy of Software Design (Ousterhout).*
+[Clean Code](references/02-clean-code.md) for naming and functions. [A Philosophy of Software Design](references/05-philosophy-of-software-design.md) for deep modules and comments.
 
 ### 1. Intention-revealing names
 - A name states why it exists, what it does, and how it is used.
@@ -40,17 +39,16 @@ Rules below are **defaults**. Deviate when a documented reason exists (generated
 
 ### 2. Deep modules over shallow breakups
 - Prefer a small interface hiding substantial implementation; pull complexity downward instead of pushing edge cases to callers.
-- Reject pass-through methods that add no value.
+- Keep delegation that provides a meaningful boundary, such as an adapter with a stable public contract.
 - Keep one level of abstraction per function (Martin's SLAP idea).
-- Function size is a smell signal, not a goal. Default: a function that does not fit on one screen (~30 lines, derived) deserves a look; do not split code into shallow fragments just to hit a number.
+- Review functions around 30 lines for cohesion (derived). Extract a helper when it makes the caller easier to understand.
 
 ### 3. Command-Query Separation (Meyer)
-- Default: a method either changes state or returns information.
-- Accepted exceptions: operations that must be atomic (`pop`, compare-and-set, `INSERT ... RETURNING`), and fluent builders. Document them.
+- Keep ordinary queries side-effect free.
+- When a contract needs a mutation and its result together, keep them atomic (for example, `pop`, compare-and-set, or `INSERT ... RETURNING`). Fluent builders can return the receiver.
 
 ### 4. Null policy
-- Default: do not return `null` for collections or "not found" cases; return empty collections, Optional/Result types, or Null Objects. Avoid passing `null` as an argument.
-- Where the language has nullable types enforced by the compiler, follow the language idiom.
+- Prefer empty collections for valid empty results and an idiomatic, explicit representation for absence or failure. Preserve the external contract when null, omission, and an empty value carry distinct meanings.
 
 ### 5. Comments
 - Martin treats most comments as a smell; Ousterhout argues good comments record what code cannot express (intent, invariants, why). Use comments for *why* and contracts, not to narrate *what*.
@@ -58,7 +56,7 @@ Rules below are **defaults**. Deviate when a documented reason exists (generated
 ---
 
 ## Pillar 2: Complexity Management & Defensive Design
-*Code Complete (McConnell), The Pragmatic Programmer, A Philosophy of Software Design, Software Engineering at Google.*
+[Code Complete](references/04-code-complete.md) for barricades and routine design. [The Pragmatic Programmer](references/01-pragmatic-programmer.md) for contracts and fail-fast behavior. [Software Engineering at Google](references/08-software-engineering-at-google.md) for Hyrum's Law.
 
 ### 1. Barricades (McConnell)
 ```text
@@ -73,42 +71,41 @@ Rules below are **defaults**. Deviate when a documented reason exists (generated
 
 ### 2. Design by Contract and Crash Early
 - Routines state preconditions, postconditions, and invariants.
-- On a *programming error or broken invariant*, fail fast: abort the current operation/transaction with a clear error. Never swallow exceptions with an empty `catch` or substitute fake values that corrupt money or stock.
-- "Crash" means stop the faulty operation, not necessarily the whole process. Long-running or offline-first systems should quarantine the failed item and keep serving other work.
+- On a programming error or broken invariant, abort the affected operation with a clear error and preserve prior durable state. For long-running or offline work, record the failure and let independent eligible work proceed.
 
 ### 3. Information hiding and Hyrum's Law
-- "All observable behaviors of your system will be depended on by somebody." Expose the smallest API surface; hide ordering, internal IDs, and raw stack traces.
+- Assume callers may come to depend on any observable behavior. Keep the API surface small and expose only the ordering and identifiers the contract needs.
 
 ### 4. Complexity thresholds (team defaults)
-- Cyclomatic complexity: investigate above ~10; McConnell's bands (0-5, 6-10, 10+) are guidance. Prefer table-driven logic or polymorphism over deep branching.
-- Parameters: Martin prefers 0-2 and treats 3 as needing justification; 4+ usually becomes a parameter object. Treat "3" as a soft ceiling.
+- Investigate cyclomatic complexity above roughly 10. Consider a table or polymorphism when either clarifies the decisions and preserves type or exhaustiveness checks.
+- Review signatures around three parameters. A parameter object helps when its fields form a meaningful concept.
 
 ---
 
 ## Pillar 3: Disciplined Refactoring
-*Refactoring (Fowler), Test-Driven Development (Beck), Modern Software Engineering (Farley).*
+[Refactoring](references/03-refactoring.md) for two hats and smells. [Modern Software Engineering](references/06-modern-software-engineering.md) for small increments and feedback. [Head First Design Patterns](references/07-head-first-design-patterns.md) for Strategy and other pattern choices.
 
 ### 1. Two hats (Beck, popularized by Fowler)
-- Adding behavior and restructuring are different activities; switch hats deliberately. Keep them in **separate commits**. Refactoring commits keep tests green.
+- Keep behavior changes and structural edits in separate steps. Preserve existing edits and use targeted verification. If commits are authorized, prefer separate commits when useful for review.
 
 ### 2. Smell → refactoring guide (Fowler's catalog names, 2nd edition)
 
-| Smell | Signal | Typical refactoring |
+| Smell | Signal | Candidate refactoring |
 | :--- | :--- | :--- |
 | Long Function / Large Class | Hard to name or summarize; several reasons to change | Extract Function / Extract Class |
-| Data Clumps | Same 3+ values travel together | Introduce Parameter Object / Value Object |
+| Data Clumps | Related values travel together and share meaning | Introduce Parameter Object / Value Object |
 | Feature Envy | Method uses another object's data more than its own | Move Function |
 | Shotgun Surgery | One change touches many places | Move Function/Field to combine concerns |
-| Repeated Switches | Same type switch in several places | Replace Conditional with Polymorphism |
+| Repeated Switches | Same branches must change in several places | Consider a shared decision table or polymorphism. Keep a clear exhaustive switch when it localizes the decision |
 | Primitive Obsession | Raw strings/numbers for domain concepts | Replace Primitive with Object |
 
 ### 3. Boy Scout Rule (Martin, *Clean Code*)
-- Leave the code a little cleaner than you found it. Make *small*, safe improvements in the area you touch; do not turn every PR into a cleanup project, and keep cleanup commits separate from behavior changes.
+- Make small, safe improvements in the touched area when they fit the user's scope.
 
 ---
 
 ## Pillar 4: Resilient Testing & TDD
-*Unit Testing (Khorikov), Test-Driven Development (Beck), Software Engineering at Google.*
+[Unit Testing](references/10-unit-testing-principles.md) for test quality and doubles. [Test-Driven Development](references/09-test-driven-development.md) for Red–Green–Refactor.
 
 ### 1. Four attributes of a good test (Khorikov)
 Protection against regressions; **resistance to refactoring** (no false alarms when behavior is unchanged); fast feedback; maintainability. Resistance to refactoring is the one you cannot trade away.
@@ -122,8 +119,14 @@ Protection against regressions; **resistance to refactoring** (no false alarms w
 - Test what the code achieves for its caller, not how. Do not test private methods directly.
 
 ### 4. TDD and the Beyoncé Rule
-- Beck's Red-Green-Refactor is a strong default for calculation-heavy domain logic (pricing, tax, costing). It is a tool, not a law; Ousterhout argues it can steer toward tactical thinking, so pair it with design time.
-- The Beyoncé Rule (*Software Engineering at Google*): if you liked a behavior, put a test on it; infrastructure owners are not responsible for breaking untested behavior. Team policy "every fix ships with a regression test" is a good practice derived from it.
+- Prefer Beck's Red–Green–Refactor for calculation-heavy logic when a useful failing test can express the next behavior. For a behavior-preserving edit, start with existing coverage or add characterization tests where there is a gap.
+- Google's Beyoncé Rule says to automate checks for properties you need to preserve, including failure behavior. Add a regression case when it fills a concrete coverage gap. [Software Engineering at Google, chapter 11](https://abseil.io/resources/swe-book/html/ch11.html#the-beyonc%C3%A9-rule)
+
+### 5. Match verification to the guarantee (Derived)
+- **Unit and property tests:** Check exact rounding and allocation examples with real domain objects. Generate valid inputs to verify outcomes such as allocations summing exactly to the original amount. Inject clocks and ID generators when tests need repeatable expiry, retries, or replay.
+- **Shared fixtures and compatibility:** Run the same versioned exact-output vectors in each language that implements the rule. Replay fixtures from supported older clients through current endpoints and upgrade paths, including a pending queue where relevant.
+- **Database integration:** Use the deployed database engines in isolated test environments. Exercise atomic commit and rollback, concurrent duplicate commands, and tenant isolation using independent connections and the runtime roles.
+- **Workflow recovery:** Drive the actual command and queue paths through a lost response after commit, restart or backup restore, and retry. Assert durable state and the visible result together.
 
 ---
 
@@ -133,11 +136,6 @@ Protection against regressions; **resistance to refactoring** (no false alarms w
 | :--- | :--- | :--- | :--- |
 | Function size | Martin: tiny functions, one thing | Ousterhout: too many small functions create shallow modules | Split when it improves understanding; keep related logic together behind a deep interface |
 | Comments | Martin: comments often signal failure | Ousterhout: comments capture design intent | Comment the why, not the what |
-| TDD | Beck: test-first drives design | Ousterhout: can promote tactical programming | Use test-first for logic-dense code; always allocate design time |
+| TDD | Beck: test-first drives design | Ousterhout: can promote tactical programming | Prefer test-first for logic-dense changes and evaluate module boundaries during design |
 | Validation | McConnell: validate at barricade | Domain design: objects enforce their own invariants | Syntax/format at the boundary; business invariants inside the domain |
-| Crash early | Pragmatic Programmer | Offline/long-running systems must stay up | Abort the operation, quarantine, keep the process alive |
-
----
-
-## Reference Directory
-Notes per book are in `references/` (`01-pragmatic-programmer.md` through `10-unit-testing-principles.md`); checklists in `checklists/`. Run `checklists/code-review-checklist.md` for reviews instead of duplicating its items here.
+| Fail fast and idempotent retries | Invalid operation or broken invariant calls for an explicit outcome | A valid retry after a lost response may refer to an already committed operation | Return the stored result for an exact replay. Handle changed payloads and unknown external outcomes according to the contract |

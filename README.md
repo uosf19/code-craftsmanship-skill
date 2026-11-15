@@ -1,8 +1,8 @@
 # Code Craftsmanship & Modern Software Engineering Skill
 
-A universal, production-grade engineering playbook for writing clean, robust, deeply modular, and maintainable software. 
+A playbook for implementing new code, reviewing code, restructuring existing behavior, and choosing tests.
 
-Informed by **10 classic books** on software construction, clean code, refactoring, and testing. The files in `references/` are short study notes, not substitutes for the books. Numeric limits (function length, parameter count, complexity, refactoring time) are team defaults derived for this skill, and `SKILL.md` labels them as such.
+Ten books on software construction, clean code, refactoring, and testing inform the study notes. Individual references cite the chapter, excerpt, author material, or publisher contents consulted for specific claims. The [skill](SKILL.md) labels project applications and review heuristics as derived guidance.
 
 ---
 
@@ -21,7 +21,7 @@ This skill distills the engineering principles, heuristics, and invariants from:
 9. **Test-Driven Development: By Example** — *Kent Beck*
 10. **Unit Testing: Principles, Practices, and Patterns** — *Vladimir Khorikov*
 
-Detailed chapter-by-chapter summaries and actionable rules are available in the [`references/`](references/) directory.
+The [skill](SKILL.md) links each book at the relevant topic. The [language idioms reference](references/11-language-idioms.md) applies the guidance to the project's current stack.
 
 ---
 
@@ -41,8 +41,8 @@ Deep Modularity  Defensive Design Refactoring      Testing & TDD
 
 1. **Code Hygiene & Deep Modularity:** Intention-revealing naming, Deep Modules over shallow pass-through methods, Command-Query Separation (with documented exceptions), single level of abstraction, and a null-avoidance policy.
 2. **Complexity & Defensive Design:** The Barricade pattern for external boundary sanitization, Design by Contract (DbC), Fail-Fast & Crash Early, Hyrum's Law defense, and complexity thresholds as team defaults.
-3. **Disciplined Refactoring:** Two-Hat discipline (feature vs. refactoring), Code Smells taxonomy, Boy Scout rule, and atomic micro-step execution under green test suites.
-4. **Resilient Testing & TDD:** The four attributes of good tests, the Mock vs. Stub taxonomy (do not assert interactions on stubs), testing observable behavior over private details, and the Beyoncé Rule.
+3. **Disciplined Refactoring:** Reviewable behavior-preserving steps, context-based responses to code smells, and safe handling of existing edits.
+4. **Resilient Testing & TDD:** Observable outcomes, suitable test doubles, unit and property tests, compatibility fixtures, real database tests, and workflow recovery.
 
 ---
 
@@ -52,7 +52,7 @@ Deep Modularity  Defensive Design Refactoring      Testing & TDD
 code-craftsmanship/
 ├── SKILL.md                 # Master skill playbook & execution rules
 ├── README.md                # Skill overview & catalog
-├── references/              # Detailed extractions from all 10 books
+├── references/              # Study notes and derived guidance
 │   ├── 01-pragmatic-programmer.md
 │   ├── 02-clean-code.md
 │   ├── 03-refactoring.md
@@ -62,7 +62,8 @@ code-craftsmanship/
 │   ├── 07-head-first-design-patterns.md
 │   ├── 08-software-engineering-at-google.md
 │   ├── 09-test-driven-development.md
-│   └── 10-unit-testing-principles.md
+│   ├── 10-unit-testing-principles.md
+│   └── 11-language-idioms.md
 └── checklists/              # Operational checklists for code writing & review
     ├── code-review-checklist.md
     ├── refactoring-checklist.md
@@ -71,16 +72,9 @@ code-craftsmanship/
 
 ---
 
-## 🚀 How to Install & Use in Antigravity or AI Agent Workspaces
+## Installation
 
-### Option A: Install as a Global Antigravity Skill
-Clone or copy this repository into your global or project skills directory:
-```bash
-git clone https://github.com/uosf19/code-craftsmanship-skill.git code-craftsmanship
-```
-
-### Option B: Use in Any Project
-Reference `SKILL.md` in your project's coding standards or system prompts. AI agents will automatically activate this skill when writing, reviewing, refactoring, or testing code.
+Use the complete `code-craftsmanship` folder from the chosen release. For direct use, point the agent to [SKILL.md](SKILL.md). For Codex project discovery, place or link the folder under `.agents/skills/` and check the skill selector in a fresh session. Use one discoverable copy per name. [Codex skill discovery](https://learn.chatgpt.com/docs/build-skills#where-codex-loads-local-skills)
 
 ---
 

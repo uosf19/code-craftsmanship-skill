@@ -6,13 +6,13 @@
 ---
 
 ## 1. Executive Summary & Core Thesis
-The overarching goal of unit testing is **to enable sustainable growth of the software project**. High test coverage with low-quality, brittle tests is a liability, not an asset. Vladimir Khorikov demonstrates how to write valuable, maintainable unit tests that catch real regressions while exhibiting total immunity to false alarms during refactoring.
+Khorikov frames unit testing around sustainable changes. Tests gain value by catching real regressions, supporting refactoring, providing fast feedback, and remaining maintainable. The publisher's contents cover test anatomy in Chapter 3, test quality in Chapter 4, and mocks and test fragility in Chapter 5. [Manning publisher contents](https://livebook.manning.com/learn/unit-testing)
 
 ---
 
 ## 2. The Four Pillars of a Good Unit Test
 
-Every test in an enterprise suite is evaluated against four non-negotiable attributes:
+These four attributes help evaluate the quality of a test:
 
 ```text
        [ The 4 Pillars of a Good Unit Test ]
@@ -66,7 +66,8 @@ expect(result.amount).toBe(15000); // CORRECT! Tests the business outcome.
 
 ## 5. Testing Observable Behavior vs. Implementation Details
 * **Observable Behavior:** Public operations that achieve a client goal, or publicly visible state that reflects that goal.
-* **Implementation Details:** Private helper methods, internal caches, and intermediate data transfers. Tests that touch implementation details must be deleted or rewritten.
+* **Implementation details:** Private helpers and intermediate calls are poor assertion targets when callers depend only on the result. If a test breaks when those details change, express the assertion in terms of the behavior that needs coverage.
+* **Naming:** Describe the scenario and observable result in domain language. Khorikov explains the problem with rigid templates in his article about the material covered by §3.4. [Khorikov's original explanation](https://khorikov.org/posts/2021-02-25-test-naming-conventions/)
 
 ---
 
